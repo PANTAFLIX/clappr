@@ -231,10 +231,10 @@ export default class Container extends UIObject {
    * destroys the container
    * @method destroy
    */
-  destroy() {
+  async destroy() {
     this.trigger(Events.CONTAINER_DESTROYED, this, this.name)
     this.stopListening()
-    this.plugins.forEach((plugin) => plugin.destroy())
+    await Promise.all(this.plugins.map(plugin => plugin.destroy()))
     this.$el.remove()
   }
 

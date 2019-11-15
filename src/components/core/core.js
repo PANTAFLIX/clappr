@@ -183,16 +183,16 @@ export default class Core extends UIObject {
     return this.plugins.filter(plugin => plugin.name === name)[0]
   }
 
-  load(sources, mimeType) {
+  async load(sources, mimeType) {
     this.options.mimeType = mimeType
     sources = sources && sources.constructor === Array ? sources : [sources]
     this.options.sources = sources
-    this.containers.forEach((container) => container.destroy())
+    await Promise.all(this.containers.map(container => container.destroy()))
     this.mediaControl.container = null
     this.containerFactory.options = $.extend(this.options, { sources })
-    this.containerFactory.createContainers()
-      .then((containers) => this.setupContainers(containers))
-      .then((containers) => this.resolveOnContainersReady(containers))
+    let containers = await this.containerFactory.createContainers();
+    containers = await this.setupContainers(containers);
+    await this.resolveOnContainersReady(containers);
   }
 
   destroy() {
@@ -340,12 +340,12 @@ export default class Core extends UIObject {
    * @method configure
    * @param {Object} options all the options to change in form of a javascript object
    */
-  configure(options) {
+  async configure(options) {
     this._options = $.extend(this._options, options)
     this.configureDomRecycler()
     const sources = options.source || options.sources
 
-    if (sources) this.load(sources, options.mimeType || this.options.mimeType)
+    if (sources) await this.load(sources, options.mimeType || this.options.mimeType)
 
     this.trigger(Events.CORE_OPTIONS_CHANGE)
     this.containers.forEach((container) => {
