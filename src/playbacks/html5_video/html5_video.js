@@ -124,7 +124,10 @@ export default class HTML5Video extends Playback {
       muted: this.options.mute,
       defaultMuted: this.options.mute,
       loop: this.options.loop,
-      poster: posterUrl,
+      // Disabled, because an invalid or non-accessible poster URL will raise an Unknown Error on the HTML5 video element.
+      // This error would then be detected by Pantaflix's error plugin which might block playback.
+      // The poster plugin is also responsible for displaying the poster, so disabling it here, might not hurt anybody.
+      //poster: posterUrl,
       preload: preload || 'metadata',
       controls: (playbackConfig.controls || this.options.useVideoTagDefaultControls) && 'controls',
       crossOrigin: playbackConfig.crossOrigin,
